@@ -174,10 +174,15 @@ class @Minimongoid
   save: (attr = {}) ->
     # reset errors before running isValid()
     @errors = false
+    prevAttr = {}
 
     for k,v of attr
+      prevAttr[k] = @[k]
       @[k] = v
     return @ if not @isValid()
+
+    if @constructor.before_save
+      @constructor.before_save(@, prevAttr)
 
     # attr['_type'] = @constructor._type if @constructor._type?
     
@@ -187,7 +192,7 @@ class @Minimongoid
       @id = @constructor._collection.insert attr
     
     if @constructor.after_save
-      @constructor.after_save(@)
+      @constructor.after_save(@, prevAttr)
 
     return @
 
